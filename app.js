@@ -346,7 +346,7 @@ async function uploadSales() {
       const palletCode = normalizeText(pick(row, ["CODIGO_PALLET", "CODIGO PALLET", "PALLET"]));
       const caliber = normalizeCaliber(pick(row, ["CALIBRE", "CALIBRES"]));
       const boxes = number(pick(row, ["CAJAS_VENDIDAS", "CAJAS VENDIDAS", "CAJAS"]));
-      const price = number(pick(row, ["PRECIO_VENTA", "PRECIO VENTA", "PRECIO"]));
+      const price = number(pick(row, ["PRECIO_VENTA_TOTAL", "PRECIO VENTA TOTAL", "PRECIO_VENTA", "PRECIO VENTA", "PRECIO"]));
       const client = normalizeText(pick(row, ["CLIENTE"]));
       const key = stockKey(container, palletCode, caliber);
 
@@ -355,7 +355,7 @@ async function uploadSales() {
       if (!palletCode) errors.push(`Fila ${index + 2}: CODIGO_PALLET obligatorio.`);
       if (!caliber) errors.push(`Fila ${index + 2}: CALIBRE obligatorio.`);
       if (boxes <= 0) errors.push(`Fila ${index + 2}: CAJAS_VENDIDAS debe ser mayor a 0.`);
-      if (price <= 0) errors.push(`Fila ${index + 2}: PRECIO_VENTA debe ser mayor a 0.`);
+      if (price <= 0) errors.push(`Fila ${index + 2}: PRECIO_VENTA_TOTAL debe ser mayor a 0.`);
 
       draftTotals[key] = (draftTotals[key] || 0) + boxes;
       return { key, date, container, palletCode, caliber, boxes, price, client, batchId };
@@ -434,7 +434,7 @@ async function saveSalesUploadToSupabase(parsed, fileName, batchToReplace = "") 
     caliber: item.caliber,
     boxes: item.boxes,
     kilos: item.boxes * KG_PER_BOX,
-    sale_price: item.price,
+        sale_price: item.price,
     client: item.client,
   }));
   const { error } = await supabaseClient.from("sales").insert(rows);
@@ -490,9 +490,9 @@ function metricsForStock(item) {
   const sales = state.sales.filter((sale) => stockKey(sale.container, sale.palletCode, sale.caliber) === key);
   const soldBoxes = sales.reduce((sum, sale) => sum + number(sale.boxes), 0);
   const soldKilos = soldBoxes * KG_PER_BOX;
-  const revenue = sales.reduce((sum, sale) => sum + number(sale.kilos) * number(sale.price), 0);
+  const revenue = sales.reduce((sum, sale) => sum + number(sale.price), 0);
   const prices = priceFor(item.category, item.range);
-  const realProfit = sales.reduce((sum, sale) => sum + number(sale.kilos) * (number(sale.price) - number(prices.cost)), 0);
+  const realProfit = sales.reduce((sum, sale) => sum + number(sale.price) - number(sale.kilos) * number(prices.cost), 0);
   const minimumProfit = soldKilos * (number(prices.minimum) - number(prices.cost));
   const targetProfit = soldKilos * (number(prices.target) - number(prices.cost));
   const overMinimumProfit = realProfit - minimumProfit;
@@ -712,11 +712,11 @@ function renderSales() {
   }
   el("salesTable").innerHTML = `<table><thead><tr>
     <th>Fecha</th><th>Contenedor</th><th>Codigo pallet</th><th>Calibre</th><th>Cliente</th>
-    <th class="numeric">Cajas</th><th class="numeric">Precio</th><th class="numeric">Venta</th><th>Acciones</th>
+    <th class="numeric">Cajas</th><th class="numeric">Precio caja</th><th class="numeric">Precio kg</th><th class="numeric">Venta total</th><th>Acciones</th>
   </tr></thead><tbody>${rows
     .map((row) => `<tr>
       <td>${row.date}</td><td>${row.container}</td><td>${row.palletCode}</td><td>${row.caliber}</td><td>${row.client || ""}</td>
-      <td class="numeric">${qty(row.boxes)}</td><td class="numeric">${money(row.price)}</td><td class="numeric">${money(row.kilos * row.price)}</td>
+      <td class="numeric">${qty(row.boxes)}</td><td class="numeric">${money(row.boxes ? row.price / row.boxes : 0)}</td><td class="numeric">${money(row.kilos ? row.price / row.kilos : 0)}</td><td class="numeric">${money(row.price)}</td>
       <td><div class="row-actions"><button class="icon-button" onclick="editSale('${row.id}')">Editar</button><button class="icon-button danger" onclick="deleteSale('${row.id}')">Eliminar</button></div></td>
     </tr>`)
     .join("")}</tbody></table>`;
@@ -888,7 +888,7 @@ async function editSale(id) {
   if (nextBoxes === null) return;
   const boxes = number(nextBoxes);
   if (boxes <= 0 || boxes > maxBoxes) return alert(`Cantidad invalida. Maximo disponible para esta venta: ${maxBoxes}.`);
-  const nextPrice = prompt("Precio venta", sale.price);
+  const nextPrice = prompt("Precio venta total", sale.price);
   if (nextPrice === null) return;
   const price = number(nextPrice);
   if (price <= 0) return alert("Precio invalido.");
@@ -1007,9 +1007,9 @@ function seedDemo() {
     stockRow("CONT-002", "380", "22", 80),
   ];
   state.sales = [
-    saleRow("CONT-001", "380", "12*", 20, 2.8, "Cliente A"),
-    saleRow("CONT-001", "380", "14", 18, 2.6, "Cliente B"),
-    saleRow("CONT-002", "380", "22", 10, 2.75, "Cliente C"),
+    saleRow("CONT-001", "380", "12*", 20, 560, "Cliente A"),
+    saleRow("CONT-001", "380", "14", 18, 468, "Cliente B"),
+    saleRow("CONT-002", "380", "22", 10, 275, "Cliente C"),
   ];
   state.batches = [];
   saveState();

@@ -27,7 +27,7 @@ CONTENEDOR
 CODIGO_PALLET
 CALIBRE
 CAJAS_VENDIDAS
-PRECIO_VENTA
+PRECIO_VENTA_TOTAL
 CLIENTE
 ```
 
@@ -42,7 +42,9 @@ CLIENTE
 - El costo se configura en la tabla de precios, no en el Excel.
 - El punto de equilibrio se configura en la tabla de precios y es informativo.
 - Gerencia puede ver precios minimo, objetivo y punto de equilibrio, pero no costo.
-- Utilidad real = kilos vendidos * (precio venta - costo).
+- Precio por caja = precio venta total / cajas vendidas.
+- Precio por kilo = precio venta total / kilos vendidos.
+- Utilidad real = precio venta total - (kilos vendidos * costo).
 - Utilidad minima = kilos vendidos * (precio minimo - costo).
 - Utilidad objetivo = kilos vendidos * (precio objetivo - costo).
 - Utilidad sobre minimo = utilidad real - utilidad minima.
