@@ -270,7 +270,7 @@ async function uploadStock() {
       }
     });
 
-    if (errors.length) return showResult("stockUploadResult", `No se cargo el stock:\n${errors.slice(0, 12).join("\n")}`);
+    if (errors.length) return showResult("stockUploadResult", `No se cargo el stock:\n${errors.join("\n")}`);
 
     let created = 0;
     let updated = 0;
@@ -373,7 +373,7 @@ async function uploadSales() {
       }
     });
 
-    if (errors.length) return showResult("salesUploadResult", `No se cargaron ventas:\n${errors.slice(0, 12).join("\n")}`);
+    if (errors.length) return showResult("salesUploadResult", `No se cargaron ventas:\n${errors.join("\n")}`);
 
     if (useSupabase) {
       const finalBatchId = await saveSalesUploadToSupabase(parsed, file.name, replaceSalesBatchId);
