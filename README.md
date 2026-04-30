@@ -1,0 +1,66 @@
+# Harvest Control
+
+App web para cargar stock y ventas desde Excel/CSV, calcular restante y mostrar dashboard gerencial.
+
+## Uso local
+
+Abra `index.html` en el navegador.
+
+En produccion el acceso usa Supabase Auth con correo y contrasena. El rol se lee desde la tabla `profiles`.
+
+## Formatos de carga
+
+Stock:
+
+```text
+CONTENEDOR
+CODIGO_PALLET
+CALIBRE
+CAJAS
+```
+
+Ventas:
+
+```text
+FECHA
+CONTENEDOR
+CODIGO_PALLET
+CALIBRE
+CAJAS_VENDIDAS
+PRECIO_VENTA
+CLIENTE
+```
+
+## Reglas
+
+- Llave unica: `CONTENEDOR + CODIGO_PALLET + CALIBRE`.
+- Un codigo pallet equivale a un pallet.
+- Una caja equivale a 10 kg.
+- `CALIBRE` con `*` es `CAT 1*`; sin `*` es `CAT 1`.
+- El Excel no se guarda como archivo; solo se procesa la informacion.
+- Las ventas sin documento se actualizan por lote: reemplazar lote o eliminar lote.
+- El costo se configura en la tabla de precios, no en el Excel.
+- El punto de equilibrio se configura en la tabla de precios y es informativo.
+- Gerencia puede ver precios minimo, objetivo y punto de equilibrio, pero no costo.
+- Utilidad real = kilos vendidos * (precio venta - costo).
+- Utilidad minima = kilos vendidos * (precio minimo - costo).
+- Utilidad objetivo = kilos vendidos * (precio objetivo - costo).
+- Utilidad sobre minimo = utilidad real - utilidad minima.
+- Utilidad contra objetivo = utilidad real - utilidad objetivo.
+
+## Nota tecnica
+
+Esta primera version guarda datos en `localStorage` del navegador y esta preparada para migrar la persistencia a Supabase.
+
+El archivo `supabase_schema.sql` contiene las tablas recomendadas para pasar a persistencia real:
+
+- `profiles`
+- `price_ranges`
+- `stock_items`
+- `sales`
+- `upload_batches`
+
+Despues de crear usuarios en Supabase Auth, agregue sus roles en `profiles`:
+
+- `operator`
+- `management`

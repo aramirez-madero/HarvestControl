@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harvest Control</title>
+    <link rel="icon" type="image/png" href="assets/Logo-FRH-favicon.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <div id="loginView" class="login-view">
+      <section class="login-panel">
+        <img src="assets/Logo-FRH.png" alt="Fresh and Ready Harvests" class="login-logo" />
+        <h1>Harvest Control</h1>
+        <p>Dashboard de stock, ventas y restante por contenedor, pallet, categoria y calibre.</p>
+        <div id="loginModeNotice" class="login-notice"></div>
+        <label>
+          Correo
+          <input id="loginEmail" type="email" placeholder="correo@empresa.com" autocomplete="email" />
+        </label>
+        <label>
+          Contrasena
+          <input id="loginPassword" type="password" placeholder="Contrasena" autocomplete="current-password" />
+        </label>
+        <button id="loginButton" class="primary-button">Ingresar</button>
+        <small>El rol se toma desde Supabase. Si no hay conexion, se usa modo local de prueba.</small>
+      </section>
+    </div>
+
+    <div id="appView" class="app-shell hidden">
+      <aside class="sidebar">
+        <div class="brand">
+          <img src="assets/Logo-FRH-blanco-.png" alt="Fresh and Ready Harvests" />
+        </div>
+        <nav>
+          <button class="nav-link active" data-view="dashboard">Dashboard</button>
+          <button class="nav-link operator-only" data-view="stock">Stock</button>
+          <button class="nav-link operator-only" data-view="sales">Ventas</button>
+          <button class="nav-link" data-view="prices">Precios</button>
+          <button class="nav-link operator-only" data-view="history">Historial</button>
+        </nav>
+        <button id="logoutButton" class="ghost-button">Salir</button>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <span id="roleBadge" class="role-badge">Gerencia</span>
+            <h2 id="viewTitle">Dashboard</h2>
+          </div>
+          <div class="topbar-actions">
+            <button id="seedButton" class="secondary-button operator-only">Cargar ejemplo</button>
+            <button id="clearButton" class="danger-button operator-only">Limpiar datos</button>
+            <button id="mobileLogoutButton" class="secondary-button mobile-logout">Salir</button>
+          </div>
+        </header>
+
+        <section id="dashboardView" class="view-section">
+          <div id="kpiGrid" class="kpi-grid"></div>
+          <div class="toolbar">
+            <input id="globalSearch" type="search" placeholder="Buscar contenedor, pallet, calibre o cliente" />
+          </div>
+          <div class="tabbar">
+            <button class="tab active" data-tab="containerSummary">Resumen contenedor</button>
+            <button class="tab" data-tab="containerDetail">Detalle contenedor</button>
+            <button class="tab" data-tab="palletSummary">Resumen pallet</button>
+            <button class="tab" data-tab="categorySummary">Categoria</button>
+            <button class="tab" data-tab="caliberSummary">Calibre</button>
+          </div>
+          <div id="activeFilterBar" class="filter-bar hidden"></div>
+          <div id="dashboardTable" class="table-wrap"></div>
+        </section>
+
+        <section id="stockView" class="view-section hidden">
+          <div class="panel-grid">
+            <article class="panel">
+              <h3>Subir stock</h3>
+              <p>Columnas: CONTENEDOR, CODIGO_PALLET, CALIBRE, CAJAS.</p>
+              <input id="stockFile" type="file" accept=".xlsx,.xls,.csv" />
+              <button id="uploadStockButton" class="primary-button">Procesar stock</button>
+              <div id="stockUploadResult" class="result-box"></div>
+            </article>
+            <article class="panel">
+              <h3>Reglas</h3>
+              <ul>
+                <li>Llave unica: CONTENEDOR + CODIGO_PALLET + CALIBRE.</li>
+                <li>1 codigo pallet equivale a 1 pallet.</li>
+                <li>1 caja equivale a 10 kg.</li>
+                <li>La categoria sale del asterisco del calibre.</li>
+              </ul>
+            </article>
+          </div>
+          <div class="toolbar">
+            <input id="stockSearch" type="search" placeholder="Buscar stock" />
+          </div>
+          <div id="stockTable" class="table-wrap"></div>
+        </section>
+
+        <section id="salesView" class="view-section hidden">
+          <div class="panel-grid">
+            <article class="panel">
+              <h3>Subir ventas</h3>
+              <p>Columnas: FECHA, CONTENEDOR, CODIGO_PALLET, CALIBRE, CAJAS_VENDIDAS, PRECIO_VENTA, CLIENTE.</p>
+              <input id="salesFile" type="file" accept=".xlsx,.xls,.csv" />
+              <button id="uploadSalesButton" class="primary-button">Procesar ventas</button>
+              <div id="salesUploadResult" class="result-box"></div>
+            </article>
+            <article class="panel">
+              <h3>Actualizacion masiva</h3>
+              <p>Como no existe documento, las ventas se actualizan reemplazando o eliminando lotes completos desde Historial.</p>
+            </article>
+          </div>
+          <div class="toolbar">
+            <input id="salesSearch" type="search" placeholder="Buscar ventas" />
+          </div>
+          <div id="salesTable" class="table-wrap"></div>
+        </section>
+
+        <section id="pricesView" class="view-section hidden">
+          <div class="panel">
+            <h3>Precios minimo y objetivo</h3>
+            <p>Estos valores alimentan la utilidad sobre minimo y la utilidad contra objetivo.</p>
+            <div id="priceActions" class="price-actions operator-only">
+              <button id="savePricesButton" class="primary-button">Guardar precios</button>
+              <span id="priceDraftStatus">Sin cambios pendientes</span>
+            </div>
+            <div id="pricesTable" class="table-wrap"></div>
+          </div>
+        </section>
+
+        <section id="historyView" class="view-section hidden">
+          <div class="panel">
+            <h3>Historial de cargas</h3>
+            <p>No se guarda el archivo Excel, solo el resultado procesado y el lote de carga.</p>
+            <div id="historyTable" class="table-wrap"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
