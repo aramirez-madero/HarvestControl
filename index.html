@@ -38,6 +38,7 @@
           <button class="nav-link operator-only" data-view="stock">Stock</button>
           <button class="nav-link operator-only" data-view="sales">Ventas</button>
           <button class="nav-link" data-view="prices">Precios</button>
+          <button class="nav-link" data-view="calculator">Calculadora</button>
           <button class="nav-link operator-only" data-view="history">Historial</button>
         </nav>
         <button id="logoutButton" class="ghost-button">Salir</button>
@@ -126,6 +127,25 @@
               <span id="priceDraftStatus">Sin cambios pendientes</span>
             </div>
             <div id="pricesTable" class="table-wrap"></div>
+          </div>
+        </section>
+
+        <section id="calculatorView" class="view-section hidden">
+          <div class="panel calculator-panel">
+            <div class="calculator-head">
+              <div>
+                <h3>Calculadora de ventas</h3>
+                <p class="calculator-note">Nota: 1 Pallet = 96 cajas</p>
+              </div>
+              <label class="tc-field">
+                TC. Ref. (USD/CLP)
+                <input id="calculatorTc" type="number" min="0" step="0.01" value="900" />
+              </label>
+            </div>
+            <div class="toolbar">
+              <button id="addCalculatorRowButton" class="secondary-button">Agregar fila</button>
+            </div>
+            <div id="calculatorTable" class="table-wrap"></div>
           </div>
         </section>
 

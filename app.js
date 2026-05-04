@@ -21,6 +21,7 @@ let currentTab = "containerSummary";
 let replaceSalesBatchId = "";
 let activePalletFilter = null;
 let priceDrafts = {};
+let calculatorRows = [calculatorRow(), calculatorRow(), calculatorRow(), calculatorRow(), calculatorRow()];
 
 const el = (id) => document.getElementById(id);
 const money = (value) => number(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
@@ -193,6 +194,10 @@ function rangeFromCaliber(caliber) {
 
 function priceFor(category, range) {
   return state.prices.find((item) => item.category === category && item.range === range) || { minimum: 0, target: 0 };
+}
+
+function calculatorRow() {
+  return { caliber: "12", category: "CAT 1", boxes: 1, saleClp: 0 };
 }
 
 function salesForKey(key, ignoreSaleId = "", ignoreBatchId = "") {
@@ -810,6 +815,80 @@ function priceField(label, value, handler) {
   return `<div class="price-field readonly"><span>${label}</span><strong>${money(value)}</strong></div>`;
 }
 
+function renderCalculator() {
+  const tc = number(el("calculatorTc")?.value) || 1;
+  let harvestTotal = 0;
+  let commissionTotal = 0;
+  const calibers = Array.from(new Set(state.stock.map((item) => normalizeCaliber(item.caliber)).filter(Boolean))).sort((a, b) => caliberNumber(a) - caliberNumber(b) || a.localeCompare(b));
+  const availableCalibers = calibers.length ? calibers : ["12", "14", "16", "18", "20", "22", "24", "26", "28", "30", "32"];
+  const caliberOptions = availableCalibers
+    .map((value) => `<option value="${value}">${value}</option>`)
+    .join("");
+  const categoryOptions = ["CAT 1", "CAT 1*"]
+    .map((value) => `<option value="${value}">${value.replace("CAT ", "")}</option>`)
+    .join("");
+  const rows = calculatorRows
+    .map((row, index) => {
+      const rowCaliber = availableCalibers.includes(row.caliber) ? row.caliber : availableCalibers[0];
+      const range = rangeFromCaliber(rowCaliber);
+      const prices = priceFor(row.category, range);
+      const boxes = number(row.boxes);
+      const saleClp = number(row.saleClp);
+      const saleUsd = tc ? saleClp / tc : 0;
+      const costHarvest = (number(prices.cost) * 0.98) / 1.19;
+      const kilos = boxes * KG_PER_BOX;
+      const harvestProfit = ((saleUsd * kilos * 0.95) - (costHarvest * kilos * 0.98)) / 1.19;
+      const commission = ((boxes * saleUsd * KG_PER_BOX) / 1.19) * 0.05;
+      harvestTotal += harvestProfit;
+      commissionTotal += commission;
+      return `<tr>
+        <td><select class="calculator-input" data-index="${index}" data-field="caliber">${caliberOptions.replace(`value="${rowCaliber}"`, `value="${rowCaliber}" selected`)}</select></td>
+        <td><select class="calculator-input" data-index="${index}" data-field="category">${categoryOptions.replace(`value="${row.category}"`, `value="${row.category}" selected`)}</select></td>
+        <td class="numeric"><input class="calculator-input numeric-input" data-index="${index}" data-field="boxes" type="number" min="1" max="96" step="1" value="${row.boxes}" /></td>
+        <td class="numeric"><input class="calculator-input numeric-input" data-index="${index}" data-field="saleClp" type="number" min="0" step="0.01" value="${row.saleClp}" /></td>
+        <td class="numeric">${money(saleUsd)}</td>
+        <td class="numeric">${money(harvestProfit)}</td>
+        <td class="numeric">${money(commission)}</td>
+        <td><button class="icon-button danger" onclick="deleteCalculatorRow(${index})">Eliminar</button></td>
+      </tr>`;
+    })
+    .join("");
+
+  el("calculatorTable").innerHTML = `<table class="calculator-table"><thead><tr>
+    <th>Calibre</th>
+    <th>Categoria</th>
+    <th class="numeric">Cajas</th>
+    <th class="numeric">P. VENTA CON IVA x KG (Pesos Chilenos)</th>
+    <th class="numeric">P.VENTA con IVA x KG (USD)</th>
+    <th class="numeric">Ut. Bruta Harvest (Neto de Comisión Cote) en USD</th>
+    <th class="numeric">Comisión Cote en USD</th>
+    <th>Acciones</th>
+  </tr></thead><tbody>${rows}</tbody><tfoot><tr>
+    <td colspan="5" class="numeric">Total</td>
+    <td class="numeric">${money(harvestTotal)}</td>
+    <td class="numeric">${money(commissionTotal)}</td>
+    <td></td>
+  </tr></tfoot></table>`;
+}
+
+function setCalculatorValue(index, field, value) {
+  if (!calculatorRows[index]) return;
+  const nextValue = field === "boxes" ? Math.min(96, Math.max(1, number(value))) : field === "saleClp" ? number(value) : value;
+  calculatorRows[index] = { ...calculatorRows[index], [field]: nextValue };
+  renderCalculator();
+}
+
+function addCalculatorRow() {
+  calculatorRows.push(calculatorRow());
+  renderCalculator();
+}
+
+function deleteCalculatorRow(index) {
+  calculatorRows.splice(index, 1);
+  if (!calculatorRows.length) calculatorRows.push(calculatorRow());
+  renderCalculator();
+}
+
 function renderHistory() {
   const rows = [...state.batches].reverse();
   if (!rows.length) {
@@ -997,6 +1076,7 @@ function renderAll() {
   renderStock();
   renderSales();
   renderPrices();
+  renderCalculator();
   renderHistory();
 }
 
@@ -1086,6 +1166,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   el("uploadStockButton").addEventListener("click", uploadStock);
   el("uploadSalesButton").addEventListener("click", uploadSales);
   el("seedButton").addEventListener("click", seedDemo);
+  el("addCalculatorRowButton").addEventListener("click", addCalculatorRow);
+  el("calculatorTc").addEventListener("input", renderCalculator);
+  el("calculatorTable").addEventListener("change", (event) => {
+    if (!event.target.classList.contains("calculator-input")) return;
+    setCalculatorValue(number(event.target.dataset.index), event.target.dataset.field, event.target.value);
+  });
   el("clearButton").addEventListener("click", () => {
     clearAllData();
   });
