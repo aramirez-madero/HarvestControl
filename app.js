@@ -493,12 +493,11 @@ function metricsForStock(item) {
   const revenue = sales.reduce((sum, sale) => sum + number(sale.price), 0);
   const prices = priceFor(item.category, item.range);
   const stockKilos = number(item.boxes) * KG_PER_BOX;
-  const costTotal = soldKilos * number(prices.cost);
   const stockCostTotal = stockKilos * number(prices.cost);
   const minimumRevenue = soldKilos * number(prices.minimum);
   const targetRevenue = soldKilos * number(prices.target);
-  const profitAfterAdjustments = (saleTotal) => (saleTotal * 0.95 - costTotal * 0.98) / 1.19;
-  const realProfit = (revenue * 0.95 - stockCostTotal * 0.98) / 1.19;
+  const profitAfterAdjustments = (saleTotal) => (saleTotal * 0.95 - stockCostTotal * 0.98) / 1.19;
+  const realProfit = profitAfterAdjustments(revenue);
   const minimumProfit = profitAfterAdjustments(minimumRevenue);
   const targetProfit = profitAfterAdjustments(targetRevenue);
   const overMinimumProfit = realProfit - minimumProfit;
