@@ -498,7 +498,6 @@ function metricsForStock(item) {
   const minimumRevenue = soldKilos * number(prices.minimum);
   const targetRevenue = soldKilos * number(prices.target);
   const profitAfterAdjustments = (saleTotal) => (saleTotal * 0.95 - costTotal * 0.98) / 1.19;
-  const realProfitBase = profitAfterAdjustments(revenue);
   const realProfit = (revenue * 0.95 - stockCostTotal * 0.98) / 1.19;
   const minimumProfit = profitAfterAdjustments(minimumRevenue);
   const targetProfit = profitAfterAdjustments(targetRevenue);
@@ -517,7 +516,6 @@ function metricsForStock(item) {
     revenue,
     averagePrice: soldKilos ? revenue / soldKilos : 0,
     stockCostTotal,
-    realProfitBase,
     realProfit,
     minimumProfit,
     targetProfit,
@@ -544,7 +542,6 @@ function aggregate(rows, keys) {
     target.soldKilos = number(target.soldKilos) + row.soldKilos;
     target.revenue = number(target.revenue) + row.revenue;
     target.stockCostTotal = number(target.stockCostTotal) + row.stockCostTotal;
-    target.realProfitBase = number(target.realProfitBase) + row.realProfitBase;
     target.realProfit = number(target.realProfit) + row.realProfit;
     target.minimumProfit = number(target.minimumProfit) + row.minimumProfit;
     target.targetProfit = number(target.targetProfit) + row.targetProfit;
