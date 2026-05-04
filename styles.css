@@ -284,6 +284,10 @@ nav {
   display: none;
 }
 
+.calculator-card-list {
+  display: none;
+}
+
 .panel-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
@@ -360,6 +364,70 @@ nav {
 
 .numeric-input {
   text-align: right;
+}
+
+.calculator-card,
+.calculator-total-card {
+  padding: 13px;
+  background: #fff;
+  border: 1px solid rgba(221, 229, 220, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(39, 69, 31, 0.07);
+}
+
+.calculator-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--green-900);
+}
+
+.calculator-mobile-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.calculator-mobile-fields label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.calculator-result-grid,
+.calculator-total-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.calculator-result-grid div,
+.calculator-total-card div {
+  min-width: 0;
+  padding: 9px;
+  background: #f7faf4;
+  border-radius: 6px;
+}
+
+.calculator-result-grid span,
+.calculator-total-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.calculator-result-grid strong,
+.calculator-total-card strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--green-900);
+  font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
 .result-box {
@@ -712,10 +780,9 @@ tr:hover td {
   }
 
   #calculatorTable.table-wrap {
-    overflow: auto;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 8px;
+    overflow: visible;
+    border: 0;
+    background: transparent;
   }
 
   .mobile-hint {
@@ -730,10 +797,19 @@ tr:hover td {
     display: none;
   }
 
+  #calculatorTable table {
+    display: none;
+  }
+
   .mobile-card-list,
-  .price-card-list {
+  .price-card-list,
+  .calculator-card-list {
     display: grid;
     gap: 10px;
+  }
+
+  .calculator-total-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .price-actions {

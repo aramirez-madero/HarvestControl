@@ -21,7 +21,7 @@ let currentTab = "containerSummary";
 let replaceSalesBatchId = "";
 let activePalletFilter = null;
 let priceDrafts = {};
-let calculatorRows = [calculatorRow(), calculatorRow(), calculatorRow(), calculatorRow(), calculatorRow()];
+let calculatorRows = [calculatorRow()];
 
 const el = (id) => document.getElementById(id);
 const money = (value) => number(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
@@ -197,7 +197,7 @@ function priceFor(category, range) {
 }
 
 function calculatorRow() {
-  return { caliber: "12", category: "CAT 1", boxes: 1, saleClp: 0 };
+  return { caliber: "12", boxes: 1, saleClp: 0 };
 }
 
 function salesForKey(key, ignoreSaleId = "", ignoreBatchId = "") {
@@ -824,14 +824,12 @@ function renderCalculator() {
   const caliberOptions = availableCalibers
     .map((value) => `<option value="${value}">${value}</option>`)
     .join("");
-  const categoryOptions = ["CAT 1", "CAT 1*"]
-    .map((value) => `<option value="${value}">${value.replace("CAT ", "")}</option>`)
-    .join("");
-  const rows = calculatorRows
+  const renderedRows = calculatorRows
     .map((row, index) => {
       const rowCaliber = availableCalibers.includes(row.caliber) ? row.caliber : availableCalibers[0];
+      const rowCategory = categoryFromCaliber(rowCaliber);
       const range = rangeFromCaliber(rowCaliber);
-      const prices = priceFor(row.category, range);
+      const prices = priceFor(rowCategory, range);
       const boxes = number(row.boxes);
       const saleClp = number(row.saleClp);
       const saleUsd = tc ? saleClp / tc : 0;
@@ -841,9 +839,8 @@ function renderCalculator() {
       const commission = ((boxes * saleUsd * KG_PER_BOX) / 1.19) * 0.05;
       harvestTotal += harvestProfit;
       commissionTotal += commission;
-      return `<tr>
+      const tableRow = `<tr>
         <td><select class="calculator-input" data-index="${index}" data-field="caliber">${caliberOptions.replace(`value="${rowCaliber}"`, `value="${rowCaliber}" selected`)}</select></td>
-        <td><select class="calculator-input" data-index="${index}" data-field="category">${categoryOptions.replace(`value="${row.category}"`, `value="${row.category}" selected`)}</select></td>
         <td class="numeric"><input class="calculator-input numeric-input" data-index="${index}" data-field="boxes" type="number" min="1" max="96" step="1" value="${row.boxes}" /></td>
         <td class="numeric"><input class="calculator-input numeric-input" data-index="${index}" data-field="saleClp" type="number" min="0" step="0.01" value="${row.saleClp}" /></td>
         <td class="numeric">${money(saleUsd)}</td>
@@ -851,20 +848,43 @@ function renderCalculator() {
         <td class="numeric">${money(commission)}</td>
         <td><button class="icon-button danger" onclick="deleteCalculatorRow(${index})">Eliminar</button></td>
       </tr>`;
+      const mobileCard = `<article class="calculator-card">
+        <div class="calculator-card-head">
+          <strong>Fila ${index + 1}</strong>
+          <button class="icon-button danger" onclick="deleteCalculatorRow(${index})">Eliminar</button>
+        </div>
+        <div class="calculator-mobile-fields">
+          <label>Calibre<select class="calculator-input" data-index="${index}" data-field="caliber">${caliberOptions.replace(`value="${rowCaliber}"`, `value="${rowCaliber}" selected`)}</select></label>
+          <label>Cajas<input class="calculator-input numeric-input" data-index="${index}" data-field="boxes" type="number" min="1" max="96" step="1" value="${row.boxes}" /></label>
+          <label>P. VENTA CON IVA x KG (Pesos Chilenos)<input class="calculator-input numeric-input" data-index="${index}" data-field="saleClp" type="number" min="0" step="0.01" value="${row.saleClp}" /></label>
+        </div>
+        <div class="calculator-result-grid">
+          <div><span>P.VENTA con IVA x KG (USD)</span><strong>${money(saleUsd)}</strong></div>
+          <div><span>Ut. Bruta Harvest (Neto de Comisión Cote) en USD</span><strong>${money(harvestProfit)}</strong></div>
+          <div><span>Comisión Cote en USD</span><strong>${money(commission)}</strong></div>
+        </div>
+      </article>`;
+      return { tableRow, mobileCard };
     })
-    .join("");
+    .reduce((html, row) => {
+      html.tableRows += row.tableRow;
+      html.mobileCards += row.mobileCard;
+      return html;
+    }, { tableRows: "", mobileCards: "" });
 
-  el("calculatorTable").innerHTML = `<table class="calculator-table"><thead><tr>
+  el("calculatorTable").innerHTML = `<div class="calculator-card-list">${renderedRows.mobileCards}<article class="calculator-total-card">
+    <div><span>Total Ut. Bruta Harvest</span><strong>${money(harvestTotal)}</strong></div>
+    <div><span>Total Comisión Cote</span><strong>${money(commissionTotal)}</strong></div>
+  </article></div><table class="calculator-table"><thead><tr>
     <th>Calibre</th>
-    <th>Categoria</th>
     <th class="numeric">Cajas</th>
     <th class="numeric">P. VENTA CON IVA x KG (Pesos Chilenos)</th>
     <th class="numeric">P.VENTA con IVA x KG (USD)</th>
     <th class="numeric">Ut. Bruta Harvest (Neto de Comisión Cote) en USD</th>
     <th class="numeric">Comisión Cote en USD</th>
     <th>Acciones</th>
-  </tr></thead><tbody>${rows}</tbody><tfoot><tr>
-    <td colspan="5" class="numeric">Total</td>
+  </tr></thead><tbody>${renderedRows.tableRows}</tbody><tfoot><tr>
+    <td colspan="4" class="numeric">Total</td>
     <td class="numeric">${money(harvestTotal)}</td>
     <td class="numeric">${money(commissionTotal)}</td>
     <td></td>
