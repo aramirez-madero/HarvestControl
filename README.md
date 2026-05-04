@@ -44,11 +44,14 @@ CLIENTE
 - Gerencia puede ver precios minimo, objetivo y punto de equilibrio, pero no costo.
 - Precio por caja = precio venta total / cajas vendidas.
 - Precio por kilo = precio venta total / kilos vendidos.
-- Utilidad real = precio venta total - (kilos vendidos * costo).
-- Utilidad minima = kilos vendidos * (precio minimo - costo).
-- Utilidad objetivo = kilos vendidos * (precio objetivo - costo).
-- Utilidad sobre minimo = utilidad real - utilidad minima.
-- Utilidad contra objetivo = utilidad real - utilidad objetivo.
+- Costo total = kilos vendidos * costo.
+- Venta minima = kilos vendidos * precio minimo.
+- Venta objetivo = kilos vendidos * precio objetivo.
+- Utilidad real = ((precio venta total * 0.95) - (costo total * 0.98)) / 1.19.
+- Utilidad minima = ((venta minima * 0.95) - (costo total * 0.98)) / 1.19.
+- Utilidad objetivo = ((venta objetivo * 0.95) - (costo total * 0.98)) / 1.19.
+- Utilidad Bruta sobre minimo = utilidad real - utilidad minima.
+- Utilidad Bruta contra objetivo = utilidad real - utilidad objetivo.
 
 ## Nota tecnica
 

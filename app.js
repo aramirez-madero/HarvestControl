@@ -492,9 +492,13 @@ function metricsForStock(item) {
   const soldKilos = soldBoxes * KG_PER_BOX;
   const revenue = sales.reduce((sum, sale) => sum + number(sale.price), 0);
   const prices = priceFor(item.category, item.range);
-  const realProfit = sales.reduce((sum, sale) => sum + number(sale.price) - number(sale.kilos) * number(prices.cost), 0);
-  const minimumProfit = soldKilos * (number(prices.minimum) - number(prices.cost));
-  const targetProfit = soldKilos * (number(prices.target) - number(prices.cost));
+  const costTotal = soldKilos * number(prices.cost);
+  const minimumRevenue = soldKilos * number(prices.minimum);
+  const targetRevenue = soldKilos * number(prices.target);
+  const profitAfterAdjustments = (saleTotal) => (saleTotal * 0.95 - costTotal * 0.98) / 1.19;
+  const realProfit = profitAfterAdjustments(revenue);
+  const minimumProfit = profitAfterAdjustments(minimumRevenue);
+  const targetProfit = profitAfterAdjustments(targetRevenue);
   const overMinimumProfit = realProfit - minimumProfit;
   const againstTargetProfit = realProfit - targetProfit;
   return {
@@ -566,8 +570,8 @@ function renderDashboard() {
     kpi("Venta total", money(totals.revenue), true),
     kpi("Precio promedio", money(totals.averagePrice)),
     kpi("Utilidad real", money(totals.realProfit), true),
-    kpi("Utilidad sobre minimo", money(totals.overMinimumProfit), true),
-    kpi("Utilidad contra objetivo", money(totals.againstTargetProfit)),
+    kpi("Utilidad Bruta sobre minimo", money(totals.overMinimumProfit), true),
+    kpi("Utilidad Bruta contra objetivo", money(totals.againstTargetProfit)),
     kpi("Contenedores / pallets", `${totalContainers} / ${totalPallets}`),
   ].join("");
 
@@ -613,8 +617,8 @@ function dashboardColumns() {
     ["revenue", "Venta total", money],
     ["averagePrice", "Precio prom.", money],
     ["realProfit", "Utilidad real", money],
-    ["overMinimumProfit", "Utilidad sobre minimo", money],
-    ["againstTargetProfit", "Utilidad contra objetivo", money],
+    ["overMinimumProfit", "Utilidad Bruta sobre minimo", money],
+    ["againstTargetProfit", "Utilidad Bruta contra objetivo", money],
   ];
   if (currentTab === "containerSummary") return [["container", "Contenedor"], ...metricCols];
   if (currentTab === "containerDetail") return [["container", "Contenedor"], ["palletCode", "Codigo pallet"], ["caliber", "Calibre"], ["category", "Categoria"], ...metricCols];
