@@ -434,6 +434,10 @@ nav {
   overflow-wrap: anywhere;
 }
 
+.calculator-card.incomplete .calculator-result-grid strong {
+  color: transparent;
+}
+
 .calculator-result-grid div:nth-child(2) {
   border: 1px solid rgba(143, 214, 21, 0.42);
   background: rgba(143, 214, 21, 0.12);
