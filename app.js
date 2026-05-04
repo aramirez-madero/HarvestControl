@@ -856,7 +856,7 @@ function renderCalculator() {
         <div class="calculator-mobile-fields">
           <label>Calibre<select class="calculator-input" data-index="${index}" data-field="caliber">${caliberOptions.replace(`value="${rowCaliber}"`, `value="${rowCaliber}" selected`)}</select></label>
           <label>Cajas<input class="calculator-input numeric-input" data-index="${index}" data-field="boxes" type="number" min="1" max="96" step="1" value="${row.boxes}" /></label>
-          <label>P. VENTA CON IVA x KG (Pesos Chilenos)<input class="calculator-input numeric-input" data-index="${index}" data-field="saleClp" type="number" min="0" step="0.01" value="${row.saleClp}" /></label>
+          <label class="calculator-wide-field">P. VENTA CON IVA x KG (Pesos Chilenos)<input class="calculator-input numeric-input" data-index="${index}" data-field="saleClp" type="number" min="0" step="0.01" value="${row.saleClp}" /></label>
         </div>
         <div class="calculator-result-grid">
           <div><span>P.VENTA con IVA x KG (USD)</span><strong>${money(saleUsd)}</strong></div>

@@ -396,6 +396,10 @@ nav {
   font-size: 11px;
 }
 
+.calculator-wide-field {
+  grid-column: 1 / -1;
+}
+
 .calculator-result-grid,
 .calculator-total-card {
   display: grid;
@@ -428,6 +432,11 @@ nav {
   color: var(--green-900);
   font-size: 14px;
   overflow-wrap: anywhere;
+}
+
+.calculator-result-grid div:nth-child(2) {
+  border: 1px solid rgba(143, 214, 21, 0.42);
+  background: rgba(143, 214, 21, 0.12);
 }
 
 .result-box {
@@ -810,6 +819,53 @@ tr:hover td {
 
   .calculator-total-card {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calculator-card {
+    padding: 14px;
+  }
+
+  .calculator-card-head {
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .calculator-card-head strong {
+    font-size: 16px;
+  }
+
+  .calculator-mobile-fields {
+    gap: 10px;
+  }
+
+  .calculator-mobile-fields label {
+    padding: 9px;
+    background: #f7faf4;
+    border-radius: 6px;
+    font-weight: 900;
+  }
+
+  .calculator-mobile-fields input,
+  .calculator-mobile-fields select {
+    margin-top: 6px;
+    background: #fff;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .calculator-result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calculator-result-grid div:nth-child(2) {
+    order: -1;
+    grid-column: 1 / -1;
+  }
+
+  .calculator-result-grid div:nth-child(2) strong {
+    color: var(--orange-500);
+    font-size: 20px;
   }
 
   .price-actions {
