@@ -401,6 +401,8 @@ tr:hover td {
     position: sticky;
     top: 22px;
     z-index: 8;
+    margin-bottom: 18px;
+    box-shadow: 0 0 0 12px var(--page);
   }
 
   #dashboardTable.table-wrap {

@@ -516,6 +516,7 @@ function metricsForStock(item) {
     soldKilos,
     revenue,
     averagePrice: soldKilos ? revenue / soldKilos : 0,
+    stockCostTotal,
     realProfitBase,
     realProfit,
     minimumProfit,
@@ -542,6 +543,7 @@ function aggregate(rows, keys) {
     target.remainingBoxes = number(target.remainingBoxes) + row.remainingBoxes;
     target.soldKilos = number(target.soldKilos) + row.soldKilos;
     target.revenue = number(target.revenue) + row.revenue;
+    target.stockCostTotal = number(target.stockCostTotal) + row.stockCostTotal;
     target.realProfitBase = number(target.realProfitBase) + row.realProfitBase;
     target.realProfit = number(target.realProfit) + row.realProfit;
     target.minimumProfit = number(target.minimumProfit) + row.minimumProfit;
@@ -567,6 +569,9 @@ function renderDashboard() {
   const totals = aggregate(rows, [])[0] || {};
   const totalPallets = new Set(rows.map((item) => `${item.container}|${item.palletCode}`)).size;
   const totalContainers = new Set(rows.map((item) => item.container)).size;
+  const kpiRealProfit = (number(totals.revenue) * 0.95 - number(totals.stockCostTotal) * 0.98) / 1.19;
+  const kpiOverMinimumProfit = kpiRealProfit - number(totals.minimumProfit);
+  const kpiAgainstTargetProfit = kpiRealProfit - number(totals.targetProfit);
 
   el("kpiGrid").innerHTML = [
     kpi("Cajas iniciales", qty(totals.initialBoxes)),
@@ -574,9 +579,9 @@ function renderDashboard() {
     kpi("Cajas restantes", qty(totals.remainingBoxes)),
     kpi("Venta total", money(totals.revenue), true),
     kpi("Precio promedio", money(totals.averagePrice)),
-    kpi("Utilidad real", money(totals.realProfit), true),
-    kpi("Utilidad Bruta sobre minimo", money(totals.overMinimumProfit), true),
-    kpi("Utilidad Bruta contra objetivo", money(totals.againstTargetProfit)),
+    kpi("Utilidad real", money(kpiRealProfit), true),
+    kpi("Utilidad Bruta sobre minimo", money(kpiOverMinimumProfit), true),
+    kpi("Utilidad Bruta contra objetivo", money(kpiAgainstTargetProfit)),
     kpi("Contenedores / pallets", `${totalContainers} / ${totalPallets}`),
   ].join("");
 

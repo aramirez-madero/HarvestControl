@@ -49,7 +49,7 @@ CLIENTE
 - Venta minima = kilos vendidos * precio minimo.
 - Venta objetivo = kilos vendidos * precio objetivo.
 - Utilidad real base = ((precio venta total * 0.95) - (costo total * 0.98)) / 1.19.
-- Utilidad real = utilidad real base - costo total del stock.
+- Utilidad real en KPI dashboard = ((precio venta total * 0.95) - (costo total del stock * 0.98)) / 1.19.
 - Utilidad minima = ((venta minima * 0.95) - (costo total * 0.98)) / 1.19.
 - Utilidad objetivo = ((venta objetivo * 0.95) - (costo total * 0.98)) / 1.19.
 - Utilidad Bruta sobre minimo = utilidad real - utilidad minima.
