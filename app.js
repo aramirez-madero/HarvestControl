@@ -197,7 +197,7 @@ function priceFor(category, range) {
 }
 
 function calculatorRow() {
-  return { caliber: "12", boxes: 1, saleClp: 0 };
+  return { caliber: "12", boxes: 1, saleClp: 0, saleUsd: "" };
 }
 
 function salesForKey(key, ignoreSaleId = "", ignoreBatchId = "") {
@@ -832,7 +832,8 @@ function renderCalculator() {
       const prices = priceFor(rowCategory, range);
       const boxes = number(row.boxes);
       const saleClp = number(row.saleClp);
-      const saleUsd = tc ? saleClp / tc : 0;
+      const calculatedSaleUsd = tc ? saleClp / tc : 0;
+      const saleUsd = row.saleUsd === "" || row.saleUsd === undefined ? calculatedSaleUsd : number(row.saleUsd);
       const costHarvest = (number(prices.cost) * 0.98) / 1.19;
       const kilos = boxes * KG_PER_BOX;
       const harvestProfit = ((saleUsd * kilos * 0.95) - (costHarvest * kilos * 0.98)) / 1.19;
@@ -843,7 +844,7 @@ function renderCalculator() {
         <td><select class="calculator-input" data-index="${index}" data-field="caliber">${caliberOptions.replace(`value="${rowCaliber}"`, `value="${rowCaliber}" selected`)}</select></td>
         <td class="numeric"><input class="calculator-input numeric-input" data-index="${index}" data-field="boxes" type="number" min="1" max="96" step="1" value="${row.boxes}" /></td>
         <td class="numeric"><input class="calculator-input numeric-input" data-index="${index}" data-field="saleClp" type="number" min="0" step="0.01" value="${row.saleClp}" /></td>
-        <td class="numeric">${money(saleUsd)}</td>
+        <td class="numeric"><input class="calculator-input numeric-input" data-index="${index}" data-field="saleUsd" type="number" min="0" step="0.01" placeholder="${qty(calculatedSaleUsd)}" value="${row.saleUsd}" /></td>
         <td class="numeric">${money(harvestProfit)}</td>
         <td class="numeric">${money(commission)}</td>
         <td><button class="icon-button danger" onclick="deleteCalculatorRow(${index})">Eliminar</button></td>
@@ -857,6 +858,7 @@ function renderCalculator() {
           <label>Calibre<select class="calculator-input" data-index="${index}" data-field="caliber">${caliberOptions.replace(`value="${rowCaliber}"`, `value="${rowCaliber}" selected`)}</select></label>
           <label>Cajas<input class="calculator-input numeric-input" data-index="${index}" data-field="boxes" type="number" min="1" max="96" step="1" value="${row.boxes}" /></label>
           <label class="calculator-wide-field">P. VENTA CON IVA x KG (Pesos Chilenos)<input class="calculator-input numeric-input" data-index="${index}" data-field="saleClp" type="number" min="0" step="0.01" value="${row.saleClp}" /></label>
+          <label class="calculator-wide-field">P.VENTA con IVA x KG (USD)<input class="calculator-input numeric-input" data-index="${index}" data-field="saleUsd" type="number" min="0" step="0.01" placeholder="${qty(calculatedSaleUsd)}" value="${row.saleUsd}" /></label>
         </div>
         <div class="calculator-result-grid">
           <div><span>P.VENTA con IVA x KG (USD)</span><strong>${money(saleUsd)}</strong></div>
@@ -893,7 +895,7 @@ function renderCalculator() {
 
 function setCalculatorValue(index, field, value) {
   if (!calculatorRows[index]) return;
-  const nextValue = field === "boxes" ? Math.min(96, Math.max(1, number(value))) : field === "saleClp" ? number(value) : value;
+  const nextValue = field === "boxes" ? Math.min(96, Math.max(1, number(value))) : ["saleClp", "saleUsd"].includes(field) ? (value === "" ? "" : number(value)) : value;
   calculatorRows[index] = { ...calculatorRows[index], [field]: nextValue };
   renderCalculator();
 }
