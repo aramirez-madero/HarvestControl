@@ -380,6 +380,13 @@ th {
   text-transform: uppercase;
 }
 
+tfoot td {
+  color: var(--green-900);
+  background: #edf5e8;
+  border-top: 2px solid var(--green-700);
+  font-weight: 900;
+}
+
 td.numeric,
 th.numeric {
   text-align: right;
@@ -387,6 +394,23 @@ th.numeric {
 
 tr:hover td {
   background: #fbfdf9;
+}
+
+@media (min-width: 981px) {
+  #dashboardView .tabbar {
+    position: sticky;
+    top: 22px;
+    z-index: 8;
+  }
+
+  #dashboardTable.table-wrap {
+    overflow: visible;
+  }
+
+  #dashboardTable th {
+    top: 84px;
+    z-index: 7;
+  }
 }
 
 .clickable-row {

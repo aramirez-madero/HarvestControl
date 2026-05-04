@@ -492,11 +492,14 @@ function metricsForStock(item) {
   const soldKilos = soldBoxes * KG_PER_BOX;
   const revenue = sales.reduce((sum, sale) => sum + number(sale.price), 0);
   const prices = priceFor(item.category, item.range);
+  const stockKilos = number(item.boxes) * KG_PER_BOX;
   const costTotal = soldKilos * number(prices.cost);
+  const stockCostTotal = stockKilos * number(prices.cost);
   const minimumRevenue = soldKilos * number(prices.minimum);
   const targetRevenue = soldKilos * number(prices.target);
   const profitAfterAdjustments = (saleTotal) => (saleTotal * 0.95 - costTotal * 0.98) / 1.19;
-  const realProfit = profitAfterAdjustments(revenue);
+  const realProfitBase = profitAfterAdjustments(revenue);
+  const realProfit = realProfitBase - stockCostTotal;
   const minimumProfit = profitAfterAdjustments(minimumRevenue);
   const targetProfit = profitAfterAdjustments(targetRevenue);
   const overMinimumProfit = realProfit - minimumProfit;
@@ -513,6 +516,7 @@ function metricsForStock(item) {
     soldKilos,
     revenue,
     averagePrice: soldKilos ? revenue / soldKilos : 0,
+    realProfitBase,
     realProfit,
     minimumProfit,
     targetProfit,
@@ -538,6 +542,7 @@ function aggregate(rows, keys) {
     target.remainingBoxes = number(target.remainingBoxes) + row.remainingBoxes;
     target.soldKilos = number(target.soldKilos) + row.soldKilos;
     target.revenue = number(target.revenue) + row.revenue;
+    target.realProfitBase = number(target.realProfitBase) + row.realProfitBase;
     target.realProfit = number(target.realProfit) + row.realProfit;
     target.minimumProfit = number(target.minimumProfit) + row.minimumProfit;
     target.targetProfit = number(target.targetProfit) + row.targetProfit;
@@ -635,7 +640,29 @@ function buildMetricsTable(rows, columns, clickablePalletRows = false) {
   if (!rows.length) return emptyTable("Sin informacion para mostrar.");
   return `${buildMobileCards(rows, columns)}<div class="mobile-hint">Deslice la tabla para ver mas columnas.</div><table><thead><tr>${columns.map(([, label]) => `<th>${label}</th>`).join("")}</tr></thead><tbody>${rows
     .map((row) => `<tr ${clickablePalletRows ? `class="clickable-row" data-container="${encodeAttr(row.container)}" data-pallet="${encodeAttr(row.palletCode)}"` : ""}>${columns.map(([key, , formatter]) => `<td class="${formatter ? "numeric" : ""}">${formatter ? formatter(row[key]) : row[key] || ""}</td>`).join("")}</tr>`)
-    .join("")}</tbody></table>`;
+    .join("")}</tbody>${buildMetricsTotals(rows, columns)}</table>`;
+}
+
+function buildMetricsTotals(rows, columns) {
+  const totalKeys = new Set(["soldBoxes", "remainingBoxes", "revenue", "realProfit", "overMinimumProfit", "againstTargetProfit"]);
+  const totals = rows.reduce((sum, row) => {
+    totalKeys.forEach((key) => {
+      sum[key] = number(sum[key]) + number(row[key]);
+    });
+    return sum;
+  }, {});
+  let labelShown = false;
+  const cells = columns
+    .map(([key, , formatter]) => {
+      if (totalKeys.has(key)) return `<td class="numeric">${formatter ? formatter(totals[key]) : totals[key]}</td>`;
+      if (!labelShown) {
+        labelShown = true;
+        return "<td>Totales</td>";
+      }
+      return "<td></td>";
+    })
+    .join("");
+  return `<tfoot><tr>${cells}</tr></tfoot>`;
 }
 
 function encodeAttr(value) {
