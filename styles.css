@@ -347,6 +347,11 @@ nav {
   margin: 0;
 }
 
+.calculator-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .calculator-table {
   min-width: 1180px;
 }
@@ -823,6 +828,11 @@ tr:hover td {
 
   .calculator-total-card {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calculator-actions,
+  .calculator-actions button {
+    width: 100%;
   }
 
   .calculator-card {
