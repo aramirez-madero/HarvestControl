@@ -499,7 +499,7 @@ function metricsForStock(item) {
   const targetRevenue = soldKilos * number(prices.target);
   const profitAfterAdjustments = (saleTotal) => (saleTotal * 0.95 - costTotal * 0.98) / 1.19;
   const realProfitBase = profitAfterAdjustments(revenue);
-  const realProfit = realProfitBase - stockCostTotal;
+  const realProfit = (revenue * 0.95 - stockCostTotal * 0.98) / 1.19;
   const minimumProfit = profitAfterAdjustments(minimumRevenue);
   const targetProfit = profitAfterAdjustments(targetRevenue);
   const overMinimumProfit = realProfit - minimumProfit;
@@ -569,7 +569,7 @@ function renderDashboard() {
   const totals = aggregate(rows, [])[0] || {};
   const totalPallets = new Set(rows.map((item) => `${item.container}|${item.palletCode}`)).size;
   const totalContainers = new Set(rows.map((item) => item.container)).size;
-  const kpiRealProfit = (number(totals.revenue) * 0.95 - number(totals.stockCostTotal) * 0.98) / 1.19;
+  const kpiRealProfit = number(totals.realProfit);
   const kpiOverMinimumProfit = kpiRealProfit - number(totals.minimumProfit);
   const kpiAgainstTargetProfit = kpiRealProfit - number(totals.targetProfit);
 
