@@ -443,11 +443,6 @@ nav {
   color: transparent;
 }
 
-.calculator-result-grid div:nth-child(2) {
-  border: 1px solid rgba(143, 214, 21, 0.42);
-  background: rgba(143, 214, 21, 0.12);
-}
-
 .result-box {
   margin-top: 12px;
   max-height: 360px;
@@ -872,14 +867,18 @@ tr:hover td {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .calculator-result-grid div:nth-child(2) {
-    order: -1;
-    grid-column: 1 / -1;
+  .calculator-result-grid strong {
+    font-size: 18px;
   }
 
-  .calculator-result-grid div:nth-child(2) strong {
+  .calculator-total-card div {
+    border: 1px solid rgba(143, 214, 21, 0.42);
+    background: rgba(143, 214, 21, 0.12);
+  }
+
+  .calculator-total-card strong {
     color: var(--orange-500);
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .price-actions {

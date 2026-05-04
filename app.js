@@ -835,9 +835,9 @@ function renderCalculator() {
       const calculatedSaleUsd = tc ? saleClp / tc : 0;
       const saleUsd = row.saleUsd === "" || row.saleUsd === undefined ? calculatedSaleUsd : number(row.saleUsd);
       const canCalculate = Boolean(rowCaliber) && boxes > 0 && saleUsd > 0;
-      const costHarvest = (number(prices.cost) * 0.98) / 1.19;
+      const cost = number(prices.cost);
       const kilos = boxes * KG_PER_BOX;
-      const harvestProfit = canCalculate ? ((saleUsd * kilos * 0.95) - (costHarvest * kilos * 0.98)) / 1.19 : 0;
+      const harvestProfit = canCalculate ? ((saleUsd * kilos * 0.95) - (cost * kilos * 0.98)) / 1.19 : 0;
       const commission = canCalculate ? ((boxes * saleUsd * KG_PER_BOX) / 1.19) * 0.05 : 0;
       harvestTotal += harvestProfit;
       commissionTotal += commission;
@@ -866,7 +866,6 @@ function renderCalculator() {
           <label class="calculator-wide-field">P.VENTA con IVA x KG (USD)<input class="calculator-input numeric-input" data-index="${index}" data-field="saleUsd" type="number" min="0" step="0.01" placeholder="${saleUsdPlaceholder}" value="${row.saleUsd}" /></label>
         </div>
         <div class="calculator-result-grid">
-          <div><span>P.VENTA con IVA x KG (USD)</span><strong>${saleUsdOutput}</strong></div>
           <div><span>Ut. Bruta Harvest (Neto de Comisión Cote) en USD</span><strong>${money(harvestProfit)}</strong></div>
           <div><span>Comisión Cote en USD</span><strong>${money(commission)}</strong></div>
         </div>

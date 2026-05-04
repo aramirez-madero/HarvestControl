@@ -59,8 +59,7 @@ CLIENTE
 - `P.VENTA con IVA x KG (USD)` = `P. VENTA CON IVA x KG (Pesos Chilenos) / TC. Ref. (USD/CLP)`.
 - Si `P.VENTA con IVA x KG (USD)` se edita manualmente, `P. VENTA CON IVA x KG (Pesos Chilenos)` = `P.VENTA con IVA x KG (USD) * TC. Ref. (USD/CLP)`.
 - La calculadora solo calcula la fila cuando existen `Calibre`, `Cajas` y un precio de venta mayor a cero.
-- `Costo Harvest` = `(Costo * 0.98) / 1.19`.
-- `Ut. Bruta Harvest (Neto de Comision Cote) en USD` = `((P.VENTA con IVA x KG (USD) * Cajas * 10 * 0.95) - (Costo Harvest * Cajas * 10 * 0.98)) / 1.19`.
+- `Ut. Bruta Harvest (Neto de Comision Cote) en USD` = `((P.VENTA con IVA x KG (USD) * Cajas * 10 * 0.95) - (Costo * Cajas * 10 * 0.98)) / 1.19`.
 - `Comision Cote en USD` = `((Cajas * P.VENTA con IVA x KG (USD) * 10) / 1.19) * 0.05`.
 
 ## Nota tecnica
